@@ -1,0 +1,10 @@
+@media screen and (max-width: 568px) {
+  .popup__content_content_info {
+    max-width: calc(100% - 40px);
+  }
+}
+
+.popup__content_content_info .popup__list {
+  max-height: max(70px, calc(100dvh - 430px));
+  overflow-y: auto;
+}
