@@ -1,16 +1,23 @@
 name: Publish Mesto
+
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
+
 permissions:
   contents: read
+  pages: write
+  id-token: write
+
 concurrency:
-  group: publish-mesto
+  group: github-pages
   cancel-in-progress: false
+
 jobs:
-  publish:
+  deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,16 +25,14 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Build
-        run: npm run build
+      - run: npm run build
         env:
           VITE_MESTO_TOKEN: ${{ secrets.VITE_MESTO_TOKEN }}
           VITE_MESTO_COHORT: ${{ secrets.VITE_MESTO_COHORT }}
-      - name: Publish build to public repository
-        uses: peaceiris/actions-gh-pages@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v5
         with:
-          personal_token: ${{ secrets.GH_PAT }}
-          external_repository: ${{ vars.PAGES_REPOSITORY }}
-          publish_branch: gh-pages
-          publish_dir: ./dist
-          force_orphan: true
+          path: dist
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
